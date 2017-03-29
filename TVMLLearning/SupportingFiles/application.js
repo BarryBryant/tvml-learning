@@ -30,10 +30,25 @@
  * the URL that was used to retrieve the application JavaScript.
  */
 App.onLaunch = function(options) {
-    var alert = createAlert("Hello World!", "Welcome to tvOS");
-    navigationDocument.pushDocument(alert);
-}
 
+    var javascriptFiles = [
+    `${options.BASEURL}js/Presenter.js`,
+    `${options.BASEURL}js/ResourceLoader.js`
+    ];
+
+    evaluateScripts(javascriptFiles, function(success) {
+        if (success) {
+            resourceLoader = new ResourceLoader(options.BASEURL);
+            resourceLoader.loadResource(`${options.BASEURL}templates/RWDevConTemplate.xml.js`, function(resource) {
+                var doc = Presenter.makeDocument(resource)
+                Presenter.pushDocument(doc)
+            });
+        } else {
+            var errorAlert = createAlert("Hello World!", "Failure");
+            navigationDocument.presentModal(errorAlert);
+        }
+    });
+}
 
 App.onWillResignActive = function() {
 
@@ -66,6 +81,9 @@ var createAlert = function(title, description) {
           <alertTemplate>
             <title>${title}</title>
             <description>${description}</description>
+            <button>
+            <text>OK</text>
+            </button>
           </alertTemplate>
         </document>`
 
